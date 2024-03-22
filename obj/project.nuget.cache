@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "bFaqFiIyFKVKw89k4LbCq2KqhOoI3lo1Qkdm5QvnEKX9EFR25Xv2mxq52Jspps9NW5zkfsBiGkPhgTepIUGoXA==",
+  "dgSpecHash": "hy6qpZhBbNSJZLkSp9tzGG3xyTViQOLP45S+kiP/g5pPu3WmqxT5IHALkzA9d+mgDkq6OJ223WyXTUcUFfzQYA==",
   "success": true,
   "projectFilePath": "C:\\Learning\\SWP\\TestSwp\\be-project-swp\\be-project-swp.csproj",
   "expectedPackageFiles": [
@@ -94,8 +94,7 @@
     "C:\\Users\\ungca\\.nuget\\packages\\system.text.encodings.web\\7.0.0\\system.text.encodings.web.7.0.0.nupkg.sha512",
     "C:\\Users\\ungca\\.nuget\\packages\\system.text.json\\7.0.0\\system.text.json.7.0.0.nupkg.sha512",
     "C:\\Users\\ungca\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
-    "C:\\Users\\ungca\\.nuget\\packages\\system.windows.extensions\\7.0.0\\system.windows.extensions.7.0.0.nupkg.sha512",
-    "C:\\Users\\ungca\\.nuget\\packages\\vng.zalo.zalodotnetsdk\\2.1.2\\vng.zalo.zalodotnetsdk.2.1.2.nupkg.sha512"
+    "C:\\Users\\ungca\\.nuget\\packages\\system.windows.extensions\\7.0.0\\system.windows.extensions.7.0.0.nupkg.sha512"
   ],
   "logs": [
     {
@@ -104,16 +103,6 @@
       "warningLevel": 1,
       "message": "Package 'Microsoft.AspNet.WebApi.Core 5.3.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net7.0'. This package may not be fully compatible with your project.",
       "libraryId": "Microsoft.AspNet.WebApi.Core",
-      "targetGraphs": [
-        "net7.0"
-      ]
-    },
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'vng.zalo.ZaloDotNetSDK 2.1.2' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net7.0'. This package may not be fully compatible with your project.",
-      "libraryId": "vng.zalo.ZaloDotNetSDK",
       "targetGraphs": [
         "net7.0"
       ]

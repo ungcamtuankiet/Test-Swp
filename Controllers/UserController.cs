@@ -75,18 +75,13 @@ namespace be_artwork_sharing_platform.Controllers
         [HttpPut]
         [Route("update-information")]
         [Authorize]
-        public async Task<IActionResult> UpdateInformation(UpdateInformation updateUser)
+        public async Task<ActionResult<GeneralServiceResponseDto>> UpdateInformation(UpdateInformation updateUser)
         {
-            var isExistNickName = _context.Users.FirstOrDefault(u => u.NickName ==  updateUser.NickName);
-            if(isExistNickName != null)
-            {
-                return BadRequest("NickName Already Exist");
-            }
             string userName = HttpContext.User.Identity.Name;
             string userId = await _authService.GetCurrentUserId(userName);
             await _logService.SaveNewLog(userName, "Update Information User");
-            await _userService.UpdateInformation(updateUser, userId);
-            return Ok("Update Successfully");
+            var result = await _userService.UpdateInformation(updateUser, userId);
+            return StatusCode(result.StatusCode, result.Message);
         }
 
         [HttpPut]

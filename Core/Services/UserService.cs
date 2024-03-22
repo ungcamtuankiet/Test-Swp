@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Mail;
 using System.Net;
+using be_artwork_sharing_platform.Core.Dtos.General;
 
 namespace be_artwork_sharing_platform.Core.Services
 {
@@ -20,30 +21,49 @@ namespace be_artwork_sharing_platform.Core.Services
             _context = context;
         }
 
-        public async Task UpdateInformation(UpdateInformation updateUser, string userId)
+        public async Task<GeneralServiceResponseDto> UpdateInformation(UpdateInformation updateUser, string userId)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            var checkIsExistNickName = _context.Users.Where(u => u.NickName == updateUser.NickName);
+            var checkIsExistEmail = _context.Users.Where(u => u.Email == updateUser.Email);
             if (user is not null)
             {
-                user.NickName = updateUser.NickName;
-                user.Email = updateUser.Email;
-                user.Address = updateUser.Address;
-                user.PhoneNumber = updateUser.PhoneNo;
+                if(user.NickName == updateUser.NickName || user.Email == updateUser.Email)
+                {
+                    if (checkIsExistEmail.Equals(updateUser.Email))
+                    {
+                        return new GeneralServiceResponseDto()
+                        {
+                            IsSucceed = false,
+                            StatusCode = 400,
+                            Message = "Email allready exist"
+                        };
+                    }
+                    if (checkIsExistNickName.Equals(updateUser.NickName))
+                    {
+                        return new GeneralServiceResponseDto()
+                        {
+                            IsSucceed = false,
+                            StatusCode = 400,
+                            Message = "NickName allready exist"
+                        };
+                    }
+                    user.NickName = updateUser.NickName;
+                    user.Email = updateUser.Email;
+                    user.Address = updateUser.Address;
+                    user.PhoneNumber = user.PhoneNumber;
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+                }
             }
             _context.Update(user);
-            _context.SaveChanges();
-        }
-
-        public async Task UpdateUser(UpdateStatusUser updateStatusUser, string userId)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.Id.Equals(userId));
-
-            if (user is not null)
+            await _context.SaveChangesAsync();
+            return new GeneralServiceResponseDto()
             {
-                user.IsActive = updateStatusUser.IsActive;  
-            }
-            _context.Update(user);
-            _context.SaveChanges();
+                IsSucceed = false,
+                StatusCode = 404,
+                Message = "User not found"
+            };
         }
 
         public void ChangePassword(ChangePassword changePassword, string userID)
@@ -105,6 +125,44 @@ namespace be_artwork_sharing_platform.Core.Services
                 CreatedAt = user.CreatedAt,
                 Roles = roles
             };
+        }
+
+        public async Task<GeneralServiceResponseDto> UpdateUser(UpdateStatusUser updateStatusUser, string nickName)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.NickName.Equals(nickName));
+            if(user is null)
+            {
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "User not found"
+                };
+            }
+            else
+            {
+                if (updateStatusUser.IsActive == true)
+                {
+                    user.IsActive = updateStatusUser.IsActive;
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+                    return new GeneralServiceResponseDto()
+                    {
+                        IsSucceed = true,
+                        StatusCode = 200,
+                        Message = "User is allowed to log in"
+                    };
+                }
+                user.IsActive = updateStatusUser.IsActive;
+                _context.Update(user);
+                await _context.SaveChangesAsync();
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = "User locked"
+                };
+            }
         }
     }
 }

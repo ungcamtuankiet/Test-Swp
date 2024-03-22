@@ -276,15 +276,7 @@ namespace be_artwork_sharing_platform.Core.Services
             return null;
         }
 
-        public async Task<string> GetCurrentUserName(string username)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
-            if (user is not null)
-                return user.UserName;
-            return null;
-        }
-
-        public async Task<string> GetCurrentFullName(string username)
+        public async Task<string> GetCurrentNickName(string username)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
             if (user is not null)
@@ -292,7 +284,7 @@ namespace be_artwork_sharing_platform.Core.Services
             return null;
         }
 
-        public async Task<string> GetCurrentFullNameByUserId(string userId)
+        public async Task<string> GetCurrentNickNameByUserId(string userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if(user is not null)

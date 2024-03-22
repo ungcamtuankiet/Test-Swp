@@ -11,16 +11,14 @@ namespace be_artwork_sharing_platform.Core.Interfaces
         Task<IEnumerable<ArtworkDto>> GetAll();
         Task<IEnumerable<Artwork>> GetArtworkForAdmin(string? getBy);
         Task<IEnumerable<Artwork>> SearchArtwork(string? search, string? searchBy, double? from, double? to, string? sortBy);
-        Task<Artwork> GetById(long id);
+        Task<ArtworkDto> GetById(long id);
+        Task<GeneralServiceResponseDto> Delete(long id);
+        Task<GeneralServiceResponseDto> DeleteSelectedArtworks(List<long> selectedIds);
         Task<IEnumerable<GetArtworkByUserId>> GetArtworkByUserId(string user_Id);
         Task CreateArtwork(CreateArtwork artworkDto, string user_Id, string user_Name);
-        int Delete(long id);
-        int DeleteSelectedArtworks(List<long> selectedIds);
-
+        Task<GeneralServiceResponseDto> AcceptArtwork(long id);
+        Task<GeneralServiceResponseDto> RefuseArtwork(long id, RefuseArtwork refuseArtwork);
         Task UpdateArtwork(long id, UpdateArtwork updateArtwork);
-        Task AcceptArtwork(long id, AcceptArtwork acceptArtwork);
-        Task RefuseArtwork(long id, RefuseArtwork refuseArtwork);
-        bool GetStatusIsActiveArtwork(long id);
-        bool GetStatusIsDeleteArtwork(long id);
+        
     }
 }

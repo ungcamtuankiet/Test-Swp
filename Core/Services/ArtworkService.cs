@@ -149,34 +149,10 @@ namespace be_artwork_sharing_platform.Core.Services
             return artworks;
         }
 
-        public async Task AcceptArtwork(long id, AcceptArtwork acceptArtwork)
-        {
-            var accept = await _context.Artworks.FirstOrDefaultAsync(a => a.Id == id);
-            if (accept is not null)
-            {
-                accept.IsActive = acceptArtwork.IsActive;
-                accept.ReasonRefuse = "Processed by Admin";
-            }
-            _context.Update(accept);
-            _context.SaveChanges();
-        }
-
-        public async Task RefuseArtwork(long id, RefuseArtwork refuseArtwork)
-        {
-            var refuse = await _context.Artworks.FirstOrDefaultAsync(a => a.Id == id);
-            if(refuse is not null)
-            {
-                refuse.IsDeleted = true;
-                refuse.ReasonRefuse = refuseArtwork.Reason;
-            }
-            _context.Update(refuse);
-            _context.SaveChanges();
-        }
-
-        public async Task<Artwork> GetById(long id)
+        public async Task<ArtworkDto> GetById(long id)
         {
             var artwork = _context.Artworks.FirstOrDefault(a => a.Id == id);
-            if(artwork != null)
+            if (artwork is not null)
             {
                 var artworkDto = new ArtworkDto
                 {
@@ -193,12 +169,9 @@ namespace be_artwork_sharing_platform.Core.Services
                     IsActive = artwork.IsActive,
                     IsDeleted = artwork.IsDeleted
                 };
-                return artwork;
+                return artworkDto;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         public async Task CreateArtwork(CreateArtwork artworkDto, string user_Id, string user_Name)
@@ -213,22 +186,66 @@ namespace be_artwork_sharing_platform.Core.Services
                 Price = artworkDto.Price,
                 Url_Image = artworkDto.Url_Image,
             };
-            
+
             await _context.Artworks.AddAsync(artwork);
             await _context.SaveChangesAsync();
         }
 
-        public int Delete(long id)
+        public async Task<GeneralServiceResponseDto> Delete(long id)
         {
             var artwork = _context.Artworks.FirstOrDefault(a => a.Id == id);
-            _context.Remove(artwork);
-            return _context.SaveChanges();
+            if(artwork is null)
+            {
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "Artwork not found!!!!"
+                };
+            }
+            else
+            {
+                _context.Remove(artwork);
+                await _context.SaveChangesAsync();
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = "Delete Artwork Successfully"
+                };
+            }
+        }
+
+        public async Task<GeneralServiceResponseDto> DeleteSelectedArtworks(List<long> selectedIds)
+        {
+            var artworksToDeletes = _context.Artworks.Where(a => selectedIds.Contains(a.Id)).ToList();
+            int a = artworksToDeletes.Count;
+            if (artworksToDeletes is null)
+            {
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "No Artwork(s) Found to Delete"
+                };
+            }
+            else
+            {
+                _context.RemoveRange(artworksToDeletes);
+                await _context.SaveChangesAsync();
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = $"Deleted {a} Artwork(s) Successfully"
+                };
+            }
         }
 
         public async Task UpdateArtwork(long id, UpdateArtwork updateArtwork)
         {
             var artwork = _context.Artworks.FirstOrDefault(a => a.Id == id);
-            if(artwork is not null)
+            if (artwork is not null)
             {
                 artwork.Name = updateArtwork.Name;
                 artwork.Category_Name = updateArtwork.Category_Name;
@@ -242,23 +259,102 @@ namespace be_artwork_sharing_platform.Core.Services
             _context.SaveChanges();
         }
 
-        public bool GetStatusIsActiveArtwork(long id)
+        public async Task<GeneralServiceResponseDto> AcceptArtwork(long id)
         {
-            var status = _context.Artworks.FirstOrDefault(b => b.Id == id);
-            return status.IsActive;
+            var accpetArtwork = new AcceptArtwork();
+            var accept = await _context.Artworks.FirstOrDefaultAsync(a => a.Id == id);
+            if(accept is null)
+            {
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "Artwork not found"
+                };
+            }
+            else
+            {
+                if (accept.IsDeleted == true)
+                {
+                    return new GeneralServiceResponseDto()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 400,
+                        Message = "Artwork was refuse so you can accept this artwork"
+                    };
+                }
+                else if(accept.IsActive == true)
+                {
+                    return new GeneralServiceResponseDto()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 400,
+                        Message = "Artwork was accept"
+                    };
+                }
+                else
+                {
+                    accept.IsActive = accpetArtwork.IsActive;
+                    accept.ReasonRefuse = "Processed by Admin";
+                }
+                _context.Update(accept);
+                await _context.SaveChangesAsync();
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = "Accept Artwork Successfully"
+                };
+            }
         }
 
-        public bool GetStatusIsDeleteArtwork(long id)
+        public async Task<GeneralServiceResponseDto> RefuseArtwork(long id, RefuseArtwork refuseArtwork)
         {
-            var status = _context.Artworks.FirstOrDefault(b => b.Id == id);
-            return status.IsDeleted;
-        }
-
-        public int DeleteSelectedArtworks(List<long> selectedIds)
-        {
-            var artworksToDelete = _context.Artworks.Where(a => selectedIds.Contains(a.Id)).ToList();
-            _context.RemoveRange(artworksToDelete);
-            return _context.SaveChanges();
+            var refuse = await _context.Artworks.FirstOrDefaultAsync(a => a.Id == id);
+            if (refuse is null)
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "Artwork not found"
+                };
+            else
+            {
+                if(refuse.IsActive == true)
+                {
+                    return new GeneralServiceResponseDto()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 400,
+                        Message = "Artwork was accpept so you can refuse this Artwork"
+                    };
+                }
+                else
+                {
+                    if(refuse.IsDeleted == true)
+                    {
+                        return new GeneralServiceResponseDto()
+                        {
+                            IsSucceed = false,
+                            StatusCode = 400,
+                            Message = "Artwork was refuse"
+                        };
+                    }
+                    else
+                    {
+                        refuse.IsDeleted = true;
+                        refuse.ReasonRefuse = refuseArtwork.Reason;
+                    }
+                    _context.Update(refuse);
+                    await _context.SaveChangesAsync();
+                    return new GeneralServiceResponseDto()
+                    {
+                        IsSucceed = true,
+                        StatusCode = 200,
+                        Message = "Refuse Artwork Successfully"
+                    };
+                }
+            }
         }
     }
 }

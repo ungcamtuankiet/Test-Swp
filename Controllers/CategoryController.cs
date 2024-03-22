@@ -30,102 +30,59 @@ namespace be_artwork_sharing_platform.Controllers
 
         [HttpGet]
         [Route("get-all-category")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var categories = _categoryService.GetAll();
-            
+            var categories = await _categoryService.GetAll();
             return Ok(_mapper.Map<List<CategoryDto>>(categories));
         }
 
         [HttpGet]
         [Route("{id}")]
-        public IActionResult GetById(long id)
+        public async Task<IActionResult> GetById(long id)
         {
             try
             {
-                var category = _categoryService.GetById(id);
-                if (category is null) return NotFound("Category not found");
-                return Ok(_mapper.Map<CategoryDto>(category));
+                var result = await _categoryService.GetById(id);
+                if (result == null) return NotFound("Category not found");
+                return Ok(result);
             }
-            catch
+            catch(Exception ex) 
             {
-                return BadRequest("Something wrong");
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPost]
         [Route("create")]
         [Authorize(Roles = StaticUserRole.ADMIN)]
-        public IActionResult CreateCategory([FromBody] CreateCategory category)
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategory createCategory)
         {
             try
             {
                 string userName = HttpContext.User.Identity.Name;
-                var result = _categoryService.CreateCategory(new Category
-                {
-                    Name = category.Name,
-                });
-
-                if(result > 0)
-                {
-                    _logService.SaveNewLog(userName, "Create New Category");
-                    return Ok(new GeneralServiceResponseDto
-                    {
-                        IsSucceed = true,
-                        StatusCode = 204,
-                        Message = "Create successfully"
-                    });
-                }
-                else
-                {
-                    _logService.SaveNewLog(userName, "Create New Category Failed");
-                    return BadRequest(new GeneralServiceResponseDto
-                    {
-                        IsSucceed= false,
-                        StatusCode = 400,
-                        Message = "Create failed"
-                    });
-                }
+                await _categoryService.CreateCategory(createCategory);
+                await _logService.SaveNewLog(userName, "Create New Category");
+                return Ok("Create Category Successfully");
             }
             catch
             {
-                return BadRequest("Error creating category");
+                return BadRequest("Create Category Failed");
             }
         }
 
         [HttpDelete]
         [Route("delete")]
         [Authorize(Roles = StaticUserRole.ADMIN)]
-        public IActionResult DeleteCategory(long id)
+        public async Task<ActionResult<GeneralServiceResponseDto>> DeleteCategory(long id)
         {
             try
             {
-                string userName = HttpContext.User.Identity.Name;
-                var result = _categoryService.Delete(id);
-                if(result > 0)
-                {
-                    _logService.SaveNewLog(userName, "Delete Category Successfully");
-                    return Ok(new GeneralServiceResponseDto
-                    {
-                        IsSucceed = true,
-                        StatusCode = 200,
-                        Message = "Delete Successfully"
-                    });
-                }
-                else
-                {
-                    _logService.SaveNewLog(userName, "Delete Category Failed");
-                    return BadRequest(new GeneralServiceResponseDto
-                    {
-                        IsSucceed = false,
-                        StatusCode = 400,
-                        Message = "Delete Failed"
-                    });
-                }
+                var result = await _categoryService.Delete(id);
+                return StatusCode(result.StatusCode, result.Message);
             }
-            catch
+            catch(Exception ex)
             {
-                return BadRequest("Error delete category");
+                return BadRequest(ex.Message);
             }
         }
 

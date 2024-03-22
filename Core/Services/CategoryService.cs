@@ -1,5 +1,6 @@
 ﻿using be_artwork_sharing_platform.Core.DbContext;
 using be_artwork_sharing_platform.Core.Dtos.Category;
+using be_artwork_sharing_platform.Core.Dtos.General;
 using be_artwork_sharing_platform.Core.Entities;
 using be_artwork_sharing_platform.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -16,27 +17,61 @@ namespace be_artwork_sharing_platform.Core.Services
             _context = context;
         }
 
-        public IEnumerable<Category> GetAll()
+        public async Task<IEnumerable<Category>> GetAll()
         {
-            return _context.Categories.ToList();
+            var categories = await _context.Categories.ToListAsync();
+            return categories;
         }
 
-        public Category GetById(long id)
+        public async Task<CategoryDto> GetById(long id)
         {
-            return _context.Categories.Find(id) ?? throw new Exception("Category not found");
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+            if(category is not null)
+            {
+                var categoryDto = new CategoryDto()
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    CreatedAt = category.CreatedAt,
+                    UpdateAt = category.UpdatedAt,
+                    IsActive = category.IsActive,
+                    IsDeleted = category.IsDeleted,
+                };
+                return categoryDto;
+            }
+            return null;
         }
 
-        public int CreateCategory(Category category)
+        public async Task CreateCategory(CreateCategory createCategory)
         {
-            _context.Categories.Add(category);
-            return _context.SaveChanges();
+            var newCategory = new Category()
+            {
+                Name = createCategory.Name
+            };
+            await _context.Categories.AddAsync(newCategory);
+            await _context.SaveChangesAsync();
         }
 
-        public int Delete(long id)
+        public async Task<GeneralServiceResponseDto> Delete(long id)
         {
-            var category = _context.Categories.Find(id) ?? throw new Exception("Category not found");
-            _context.Categories.Remove(category);
-            return _context.SaveChanges();
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+            if(category is null)
+            {
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "Category not found"
+                };
+            }
+            _context.Remove(category);
+            await _context.SaveChangesAsync();
+            return new GeneralServiceResponseDto()
+            {
+                IsSucceed = true,
+                StatusCode = 200,
+                Message = "Delete Category Successfully"
+            };
         }
 
         public async Task<IEnumerable<string>> GetCategortNameListAsync()

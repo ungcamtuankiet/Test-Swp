@@ -7,7 +7,7 @@ namespace be_artwork_sharing_platform.Core.Interfaces
 {
     public interface IFavouriteService
     {
-        Task<long> AddToFavourite(string userId, long artworkId, long favourite_Id);
+        Task<AddFavourite> AddToFavourite(string userId, long artworkId);
         int RemoveArtwork(long artwork_Id, string user_Id);
         IEnumerable<GetFavourite> GetFavouritesByUserId(string user_Id);
         long GetFavouriteIdByUserId(string user_Id);

@@ -97,10 +97,6 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
-            },
-            "vng.zalo.ZaloDotNetSDK": {
-              "target": "Package",
-              "version": "[2.1.2, )"
             }
           },
           "imports": [

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
+using System.Web.Http.Results;
 
 namespace be_artwork_sharing_platform.Controllers
 {
@@ -42,8 +43,6 @@ namespace be_artwork_sharing_platform.Controllers
         public async Task<IActionResult> GetAll()
         {
             var artworks = await _artworkService.GetAll();
-            if (artworks is null)
-                return null;
             return Ok(artworks);
         }
 
@@ -52,8 +51,6 @@ namespace be_artwork_sharing_platform.Controllers
         public async Task<IActionResult> Search(string? search, string? searchBy, double? from, double? to, string? sortBy)
         {
             var artworks = await _artworkService.SearchArtwork(search, searchBy, from, to, sortBy);
-            if (artworks is null)
-                return NotFound("Artworks not available");
             return Ok(_mapper.Map<List<ArtworkDto>>(artworks));
         }
 
@@ -65,7 +62,6 @@ namespace be_artwork_sharing_platform.Controllers
             string userName = HttpContext.User.Identity.Name;
             string userId = await _authService.GetCurrentUserId(userName);
             var artworks = await _artworkService.GetArtworkByUserId(userId);
-            if (artworks is null) return null;
             return Ok(artworks);
 
         }
@@ -77,21 +73,12 @@ namespace be_artwork_sharing_platform.Controllers
             try
             {
                 var artwork = await _artworkService.GetById(id);
-                if(artwork is null)
-                    return NotFound(new GeneralServiceResponseDto
-                    {
-                        IsSucceed = false,
-                        StatusCode = 204,
-                        Message = "Artwork not found"
-                    });
-                else
-                {
-                    return Ok(artwork);
-                }
+                if (artwork == null) return NotFound("Artwork not found");
+                return Ok(artwork);
             }
-            catch
+            catch(Exception ex)
             {
-                return BadRequest("Somethong wrong");
+                return BadRequest(ex.Message);
             }
         }
 
@@ -104,15 +91,10 @@ namespace be_artwork_sharing_platform.Controllers
             {
                 string userName = HttpContext.User.Identity.Name;
                 string userId = await _authService.GetCurrentUserId(userName);
-                string userFullNameCurrent = await _authService.GetCurrentFullName(userName);
-                await _artworkService.CreateArtwork(artworkDto, userId, userFullNameCurrent);
+                string userNickNameCurrent = await _authService.GetCurrentNickName(userName);
+                await _artworkService.CreateArtwork(artworkDto, userId, userNickNameCurrent);
                 await _logService.SaveNewLog(userName, "Create New Artwork");
-                return Ok(new GeneralServiceResponseDto()
-                {
-                    IsSucceed = true,
-                    StatusCode = 204,
-                    Message = "Create new Artwork Successfully"
-                });
+                return Ok("Create new Artwork Successfully");
             }
             catch
             {
@@ -123,72 +105,42 @@ namespace be_artwork_sharing_platform.Controllers
         [HttpDelete]
         [Route("delete/{id}")]
         [Authorize(Roles = StaticUserRole.CREATOR)]
-        public async Task<IActionResult> Delete([FromRoute] long id)
+        public async Task<ActionResult<GeneralServiceResponseDto>> Delete(long id)
         {
             try
             {
                 string userName = HttpContext.User.Identity.Name;
-                var result = _artworkService.Delete(id);
-                if(result > 0)
-                {
-                    _logService.SaveNewLog(userName, "Delete Artwork");
-                    return Ok(new GeneralServiceResponseDto
-                    {
-                        IsSucceed = true,
-                        StatusCode = 200,
-                        Message = "Delete Artwork Successfully"
-                    });
-                }
-                else
-                {
-                    return NotFound(new GeneralServiceResponseDto
-                    {
-                        IsSucceed = true,
-                        StatusCode = 404,
-                        Message = "Artwork Not Found"
-                    });
-                }
+                var result = await _artworkService.Delete(id);
+                return StatusCode(result.StatusCode, result.Message);
             }
-            catch
+            catch(Exception ex) 
             {
-                return BadRequest("Delete Failed");
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpDelete]
         [Route("delete-by-id-select")]
         [Authorize(Roles = StaticUserRole.CREATOR)]
-        public async Task<IActionResult> Delete([FromBody] List<long> ids)
+        public async Task<ActionResult<GeneralServiceResponseDto>> Delete([FromBody] List<long> ids)
         {
             try
             {
                 string userName = HttpContext.User.Identity.Name;
-
-                int deletedCount = _artworkService.DeleteSelectedArtworks(ids);
-
-                if (deletedCount > 0)
+                var deletedArtworks = await _artworkService.DeleteSelectedArtworks(ids);
+                if(deletedArtworks is not null)
                 {
-                    await _logService.SaveNewLog(userName, $"Deleted {deletedCount} Artwork(s)");
-                    return Ok(new GeneralServiceResponseDto
-                    {
-                        IsSucceed = true,
-                        StatusCode = 200,
-                        Message = $"Deleted {deletedCount} Artwork(s) Successfully"
-                    });
+                    await _logService.SaveNewLog(userName, $"Deleted {deletedArtworks} Artwork(s)");
+                    return Ok(deletedArtworks);
                 }
                 else
                 {
-                    return NotFound(new GeneralServiceResponseDto
-                    {
-                        IsSucceed = true,
-                        StatusCode = 404,
-                        Message = "No Artwork(s) Found to Delete"
-                    });
+                    return NotFound(deletedArtworks);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest("Delete Failed");
+                return BadRequest(ex.Message);
             }
         }
 
@@ -201,7 +153,6 @@ namespace be_artwork_sharing_platform.Controllers
             {
                 string userName = HttpContext.User.Identity.Name;
                 string userId = await _authService.GetCurrentUserId(userName);
-                string userNameCurrent = await _authService.GetCurrentUserName(userName);
                 await _logService.SaveNewLog(userName, "Update Artwork");
                 await _artworkService.UpdateArtwork(id, artworkDt);
                 return Ok("Update Successfully");

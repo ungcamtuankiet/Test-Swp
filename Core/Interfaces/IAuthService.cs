@@ -14,9 +14,8 @@ namespace be_artwork_sharing_platform.Core.Interfaces
         Task<LoginServiceResponceDto?> LoginAsync(LoginDto loginDto);
         Task<LoginServiceResponceDto> MeAsync(MeDto meDto);
         Task<string> GetCurrentUserId(string username);
-        Task<string> GetCurrentUserName(string username);
-        Task<string> GetCurrentFullName(string username);
-        Task<string> GetCurrentFullNameByUserId(string userId);
+        Task<string> GetCurrentNickName(string username);
+        Task<string> GetCurrentNickNameByUserId(string userId);
         Task<string> GetPasswordCurrentUserName(string username);
         bool GetStatusUser(string username);
         Task<ApplicationUser?> GetUserByEmailAsync(string email);

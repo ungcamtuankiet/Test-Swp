@@ -50,9 +50,8 @@ namespace be_artwork_sharing_platform.Controllers
             {
                 string userName = HttpContext.User.Identity.Name;
                 string userId = await _authService.GetCurrentUserId(userName);
-                string fullNameResquest = await _authService.GetCurrentFullName(userName);
-                string currentUserNameRequest = await _authService.GetCurrentUserName(userName);
-                string fullNameReceivier = await _authService.GetCurrentFullNameByUserId(user_Id);
+                string nickNameResquest = await _authService.GetCurrentNickName(userName);
+                string nickNameReceivier = await _authService.GetCurrentNickNameByUserId(user_Id);
                 if(userId == user_Id)
                 {
                     return BadRequest(new GeneralServiceResponseDto()
@@ -65,7 +64,7 @@ namespace be_artwork_sharing_platform.Controllers
                 else
                 {
                     await _logService.SaveNewLog(userId, "Send Request Order");
-                    await _requestOrderService.SendRequesrOrder(sendRequest, currentUserNameRequest, user_Id, fullNameResquest, fullNameReceivier);
+                    await _requestOrderService.SendRequesrOrder(sendRequest, userName, user_Id, nickNameResquest, nickNameReceivier);
                     return Ok(new GeneralServiceResponseDto()
                     {
                         IsSucceed = true,

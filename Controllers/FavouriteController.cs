@@ -33,49 +33,14 @@ namespace be_artwork_sharing_platform.Controllers
         [HttpPost]
         [Route("add-favourite")]
         [Authorize(Roles = StaticUserRole.CREATOR)]
-        public async Task<IActionResult> AddFavourite(long artwork_Id)
+        public async Task<ActionResult<AddFavourite>> AddFavourite(long artwork_Id)
         {
             try
             {
                 string userName = HttpContext.User.Identity.Name;
                 string userId = await _authService.GetCurrentUserId(userName);
-                string userNameCurrent = await _authService.GetCurrentUserName(userName);
-                Favourite favouriteDto = new Favourite();
-                var checkArtwork = _context.Artworks.FirstOrDefault(a => a.Id == artwork_Id);
-                if (checkArtwork == null)
-                {
-                    return BadRequest(new GeneralServiceResponseDto()
-                    {
-                        IsSucceed = false,
-                        StatusCode = 404,
-                        Message = "Artwork not found"
-                    });
-                }
-                else
-                {
-                    var addArtworkToFavourite = _context.Favorites.FirstOrDefault(f => f.Artwork_Id == artwork_Id && f.User_Id == userId);
-                    if (addArtworkToFavourite != null)
-                    {
-                        return BadRequest(new GeneralServiceResponseDto()
-                        {
-                            IsSucceed = false,
-                            StatusCode = 400,
-                            Message = "Artwork already have in your Favourite"
-                        });
-                    }
-                    else
-                    {
-                        var id = await _favouriteService.AddToFavourite(userId, artwork_Id, favouriteDto.Id);
-                        await _logService.SaveNewLog(userNameCurrent, "Add Artwork to your Favourite Successfully");
-                        return Ok(new AddFavourite()
-                        {
-                            IsSucceed = true,
-                            StatusCode = 200,
-                            Message = "Add Artwork to your favourite successfully",
-                            Favourite_Id = id
-                        });
-                    }
-                }
+                var result = await _favouriteService.AddToFavourite(userId, artwork_Id);
+                return StatusCode(result.StatusCode, result.Message);
             }
             catch
             {

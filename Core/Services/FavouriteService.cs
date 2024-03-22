@@ -44,17 +44,52 @@ namespace be_artwork_sharing_platform.Core.Services
             }
             return null;
         }
-        public async Task<long> AddToFavourite(string userId, long artworkId, long favourite_Id)
+        public async Task<AddFavourite> AddToFavourite(string userId, long artworkId)
         {
-            var favourite = new Favourite
+            var checkArtwork = _context.Artworks.FirstOrDefault(a => a.Id == artworkId);
+            Favourite favouriteDto = new Favourite();
+            if (checkArtwork == null)
             {
-                Id = favourite_Id,
-                Artwork_Id = artworkId,
-                User_Id = userId,
-            };
-            await _context.Favorites.AddAsync(favourite);
-            await _context.SaveChangesAsync();
-            return favourite.Id;
+                return new AddFavourite()
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "Artwork not found",
+                    Favourite_Id = 0
+                };
+            }
+            else
+            {
+                var addArtworkToFavourite = _context.Favorites.FirstOrDefault(f => f.Artwork_Id == artworkId && f.User_Id == userId);
+                if (addArtworkToFavourite != null)
+                {
+                    return new AddFavourite()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 400,
+                        Message = "Artwork already have in your Favourite",
+                        Favourite_Id = 0
+                    };
+                }
+                else
+                {
+                    var favourite = new Favourite
+                    {
+                        Id = favouriteDto.Id,
+                        Artwork_Id = artworkId,
+                        User_Id = userId,
+                    };
+                    await _context.Favorites.AddAsync(favourite);
+                    await _context.SaveChangesAsync();
+                }
+                return new AddFavourite()
+                {
+                    IsSucceed = false,
+                    StatusCode = 200,
+                    Message = "Add Artwork to your favourite successfully",
+                    Favourite_Id = favouriteDto.Id
+                };
+            }
         }
 
         public int RemoveArtwork(long favourite_Id, string user_Id)

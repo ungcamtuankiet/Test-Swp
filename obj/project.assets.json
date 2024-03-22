@@ -1642,19 +1642,6 @@
             "rid": "win"
           }
         }
-      },
-      "vng.zalo.ZaloDotNetSDK/2.1.2": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.WebApi.Client": "5.2.3",
-          "Newtonsoft.Json": "12.0.2"
-        },
-        "compile": {
-          "lib/net452/ZaloDotNetSDK.dll": {}
-        },
-        "runtime": {
-          "lib/net452/ZaloDotNetSDK.dll": {}
-        }
       }
     }
   },
@@ -4519,18 +4506,6 @@
         "system.windows.extensions.nuspec",
         "useSharedDesignerContext.txt"
       ]
-    },
-    "vng.zalo.ZaloDotNetSDK/2.1.2": {
-      "sha512": "ozJRC1SvyRfNR5Qg521/b0j+mFUL5ecg9REw753seD1GkH1UCJBhoyihToSLQiS+oAhYekLK4mIWds8INnsmMg==",
-      "type": "package",
-      "path": "vng.zalo.zalodotnetsdk/2.1.2",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/net452/ZaloDotNetSDK.dll",
-        "vng.zalo.zalodotnetsdk.2.1.2.nupkg.sha512",
-        "vng.zalo.zalodotnetsdk.nuspec"
-      ]
     }
   },
   "projectFileDependencyGroups": {
@@ -4547,8 +4522,7 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 7.0.16",
       "Microsoft.EntityFrameworkCore.Tools >= 7.0.16",
       "Microsoft.TestPlatform.ObjectModel >= 17.9.0",
-      "Swashbuckle.AspNetCore >= 6.5.0",
-      "vng.zalo.ZaloDotNetSDK >= 2.1.2"
+      "Swashbuckle.AspNetCore >= 6.5.0"
     ]
   },
   "packageFolders": {
@@ -4648,10 +4622,6 @@
           "Swashbuckle.AspNetCore": {
             "target": "Package",
             "version": "[6.5.0, )"
-          },
-          "vng.zalo.ZaloDotNetSDK": {
-            "target": "Package",
-            "version": "[2.1.2, )"
           }
         },
         "imports": [
@@ -4684,16 +4654,6 @@
       "warningLevel": 1,
       "message": "Package 'Microsoft.AspNet.WebApi.Core 5.3.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net7.0'. This package may not be fully compatible with your project.",
       "libraryId": "Microsoft.AspNet.WebApi.Core",
-      "targetGraphs": [
-        "net7.0"
-      ]
-    },
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'vng.zalo.ZaloDotNetSDK 2.1.2' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net7.0'. This package may not be fully compatible with your project.",
-      "libraryId": "vng.zalo.ZaloDotNetSDK",
       "targetGraphs": [
         "net7.0"
       ]
